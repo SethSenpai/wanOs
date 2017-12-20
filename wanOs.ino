@@ -110,7 +110,7 @@ void randomEventTrigger(){
   else {
     if(millis() - timeOutEvent > millisOld){
       //we popup with a random event here
-      millisOld = millis();
+      millisOld = millis(); // update our counter with the last trigger event
     }
     // generate timer that triggers between 30 and 50 seconds or so
   }
