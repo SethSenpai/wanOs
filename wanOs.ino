@@ -26,6 +26,11 @@ int analogStatesOld[] = {0,0,0,0,0};
 bool changedChip = false;
 float p = 3.1415926;
 
+//timers variables
+long millisOld = 0;
+int timeOutPopup = 15000;
+int timeOutEvent = 40000;
+
 void fillpixelbypixel(uint16_t color) {
   for (uint8_t x=0; x < tft.width(); x++) {
     for (uint8_t y=0; y < tft.height(); y++) {
@@ -68,7 +73,6 @@ void readoutAnalogPins(){
     if(temp > 0 && temp < 10){
       analogStatesNew[i] = 0;
     }
-    
     //repeat above if statement for all aprpopriate chip values
   }
 }
@@ -104,6 +108,10 @@ void randomEventTrigger(){
     return;
   }
   else {
+    if(millis() - timeOutEvent > millisOld){
+      //we popup with a random event here
+      millisOld = millis();
+    }
     // generate timer that triggers between 30 and 50 seconds or so
   }
 }
@@ -117,6 +125,7 @@ void drawBaseInterface(int valuesOfPorts[]) {
       case 0:
         drawIcon(logoArray, 0,0,RED);
       break;
+      //more stuff for different states
     }
   }
 }
