@@ -15,6 +15,7 @@
 #define YELLOW          0xFFE0  
 #define WHITE           0xFFFF
 #define DARK_CYAN       0x0124
+#define MEDIUM_CYAN     0x046F
 
 #include <Adafruit_GFX.h>
 #include <Adafruit_SSD1351.h>
@@ -22,10 +23,15 @@
 
 Adafruit_SSD1351 tft = Adafruit_SSD1351(cs, dc, rst);
 
+//array so we can loop over the analog ports
+static const uint8_t analog_pins[] = {A1,A2,A3,A4,A5};
+
+//arrays that hold the old and new status of the analog ports, each number coresponds with a specific chips
 int analogStatesNew[] = {0,0,0,0,0};
 int analogStatesOld[] = {0,0,0,0,0};
+
+//bool that turns true when a value has been changed
 bool changedChip = false;
-float p = 3.1415926;
 
 //timers variables
 long millisOld = 0;
@@ -33,6 +39,7 @@ int timeOutPopup = 15000;
 int timeOutChipChange = 10000;
 int timeOutEvent = 40000;
 
+//legacy function because why not
 void fillpixelbypixel(uint16_t color) {
   for (uint8_t x=0; x < tft.width(); x++) {
     for (uint8_t y=0; y < tft.height(); y++) {
@@ -45,14 +52,11 @@ void setup(void) {
 
   tft.begin();
   tft.setRotation(0);
-  uint16_t time = millis();
   tft.fillRect(0, 0, 96, 128, BLACK);
-  time = millis() - time;
   //setup screen and make it black
 
   drawBaseInterface(analogStatesNew);
   // draw the basic interface
-  drawPopup("hello world!");
 }
 
 void loop() {
@@ -69,10 +73,13 @@ void loop() {
 
 void readoutAnalogPins(){
   for(int i =0; i < 5; i++){
-    int temp = analogRead(i); //check so we can autocreate the right analogport
+    int temp = analogRead(analog_pins[i]); //check so we can autocreate the right analogport
     delay(1);
-    if(temp > 0 && temp < 10){
+    if(temp > 300){
       analogStatesNew[i] = 0;
+    }
+    if(temp > 0 && temp < 200){
+      analogStatesNew[i] = 1;
     }
     //repeat above if statement for all aprpopriate chip values
   }
@@ -80,6 +87,9 @@ void readoutAnalogPins(){
 
 void checkArrayStatus(){
   for(int i =0; i <5; i++){
+    Serial.print(analogStatesNew[i]);
+    Serial.print(analogStatesOld[i]);
+    Serial.print("|");
     if(analogStatesNew[i] != analogStatesOld[i]){
       analogStatesOld[i] = analogStatesNew[i];
       popupTrigger(analogStatesNew[i]);
@@ -94,11 +104,17 @@ void checkArrayStatus(){
       }
     }
   }
+  Serial.println(",");
 }
 
 void popupTrigger(int value){
   switch(value){
     case 0:
+      drawBaseInterface(analogStatesNew[value]);
+    break;
+    case 1:
+      drawPopup("New key added!");
+      delay(5000);
       drawBaseInterface(analogStatesNew[value]);
     break;
     //repeat for amount of triggers
@@ -121,8 +137,8 @@ void randomEventTrigger(){
 void drawBaseInterface(int valuesOfPorts[]) {
   //interface design goes here
   tft.fillScreen(BLACK);
-  tft.fillRect(0,0,128,15,CYAN);
-  tft.drawRect(0,0,128,96,CYAN);
+  tft.fillRect(0,0,128,15,MEDIUM_CYAN);
+  tft.drawRect(0,0,128,96,MEDIUM_CYAN);
   tft.setCursor(32,48);
   tft.setTextColor(DARK_CYAN);
   tft.setTextSize(2);
@@ -142,10 +158,10 @@ void drawBaseInterface(int valuesOfPorts[]) {
 }
 
 void drawPopup(String message){
-  tft.drawRect(10,10,108,76,RED);
+  tft.drawRect(10,10,108,76,WHITE);
   tft.fillRect(11,11,106,74,BLACK);
   tft.setCursor(23,23);
-  tft.setTextColor(DARK_CYAN);
+  tft.setTextColor(WHITE);
   tft.setTextSize(1);
   tft.println(message);
 }
