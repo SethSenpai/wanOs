@@ -39,6 +39,9 @@ int timeOutPopup = 15000;
 int timeOutChipChange = 10000;
 int timeOutEvent = 40000;
 
+//divergence meter
+float divient = 0;
+
 //legacy function because why not
 void fillpixelbypixel(uint16_t color) {
   for (uint8_t x=0; x < tft.width(); x++) {
@@ -147,6 +150,11 @@ void drawBaseInterface(int valuesOfPorts[]) {
   tft.setTextColor(DARK_CYAN);
   tft.setTextSize(1);
   tft.println("icons go in thIS bar");
+  tft.setCursor(3,86);
+  tft.setTextColor(GREEN);
+  String b = "% divergent";
+  String a = divient + b;
+  tft.println(a);
   for(int i =0; i < 5; i++){
     switch(analogStatesNew[i]){
       case 0:
