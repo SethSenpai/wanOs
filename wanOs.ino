@@ -14,6 +14,7 @@
 #define MAGENTA         0xF81F
 #define YELLOW          0xFFE0  
 #define WHITE           0xFFFF
+#define DARK_CYAN       0x0124
 
 #include <Adafruit_GFX.h>
 #include <Adafruit_SSD1351.h>
@@ -29,6 +30,7 @@ float p = 3.1415926;
 //timers variables
 long millisOld = 0;
 int timeOutPopup = 15000;
+int timeOutChipChange = 10000;
 int timeOutEvent = 40000;
 
 void fillpixelbypixel(uint16_t color) {
@@ -50,7 +52,7 @@ void setup(void) {
 
   drawBaseInterface(analogStatesNew);
   // draw the basic interface
-
+  drawPopup("hello world!");
 }
 
 void loop() {
@@ -61,7 +63,6 @@ void loop() {
   checkArrayStatus();
   
   // check if random event triggers (this cannot happen if there is a change on the ports
-
   randomEventTrigger();
   
 }
@@ -86,7 +87,8 @@ void checkArrayStatus(){
     }
     else{
       analogStatesOld[i] = analogStatesNew[i];
-      if(timer has expried){
+      if(millis()- timeOutChipChange > millisOld){
+        millisOld = millis();
         //in case of no changes and when timer expired release the changechip bool to allow for random events to happen. timeout should prob be around 30 sec;
         changedChip = false;
       }
@@ -97,7 +99,7 @@ void checkArrayStatus(){
 void popupTrigger(int value){
   switch(value){
     case 0:
-      drawBaseInterface(analogStatesNew[i]);
+      drawBaseInterface(analogStatesNew[value]);
     break;
     //repeat for amount of triggers
   }
@@ -119,15 +121,33 @@ void randomEventTrigger(){
 void drawBaseInterface(int valuesOfPorts[]) {
   //interface design goes here
   tft.fillScreen(BLACK);
-  tft.fillRect(0,0,128,10,CYAN);
+  tft.fillRect(0,0,128,15,CYAN);
+  tft.drawRect(0,0,128,96,CYAN);
+  tft.setCursor(32,48);
+  tft.setTextColor(DARK_CYAN);
+  tft.setTextSize(2);
+  tft.println("wanOs");
+  tft.setCursor(2,2);
+  tft.setTextColor(DARK_CYAN);
+  tft.setTextSize(1);
+  tft.println("icons go in thIS bar");
   for(int i =0; i < 5; i++){
-    switch(analogStateNew[i]){
+    switch(analogStatesNew[i]){
       case 0:
-        drawIcon(logoArray, 0,0,RED);
+        //drawIcon(logoArray, 0,0,RED);
       break;
       //more stuff for different states
     }
   }
+}
+
+void drawPopup(String message){
+  tft.drawRect(10,10,108,76,RED);
+  tft.fillRect(11,11,106,74,BLACK);
+  tft.setCursor(23,23);
+  tft.setTextColor(DARK_CYAN);
+  tft.setTextSize(1);
+  tft.println(message);
 }
 
 void drawIcon(int drawing[], int x, int y, uint16_t color){
