@@ -119,7 +119,7 @@ void popupTrigger(int value){
       drawBaseInterface(analogStatesNew);
     break;
     case 1:
-      drawPopup("New key added!" , 0.3);
+      drawPopup("New key added! Please enjoy your new privilage." , 0.3);
       delay(5000);
       drawBaseInterface(analogStatesNew);
     break;
@@ -132,37 +132,38 @@ void randomEventTrigger(){
     return;
   }
   else {
-    Serial.print("chip is not true, ");
-    Serial.println((millisOldEvent + timeOutEvent) - millis());
+    //Serial.print("chip is not true, ");
+    //Serial.println((millisOldEvent + timeOutEvent) - millis());
     if((millisOldEvent + timeOutEvent) < millis()){
       //we popup with a random event here
-      Serial.println("timer triggered");
+      //Serial.println("timer triggered");
       millisOldEvent = millis(); // update our counter with the last trigger event
       timeOutEvent = random(20000,60000);
       Serial.println(timeOutEvent);
       int r = random(0,5);
+      int d = 5000;
       switch(r){
         case 1:
-          drawPopup("2 Friends have been removed from your contacts." , 0.0);
-          delay(2000);
+          drawPopup("2 Friends have been removed from your contacts." , 0.1);
+          delay(d);
           drawBaseInterface(analogStatesNew);
         break;
 
         case 2:
-          drawPopup("You should head over to the canteen for your daily Latté" , 0.0);
-          delay(2000);
+          drawPopup("You should head over to the canteen for your daily Latté" , -0.5);
+          delay(d);
           drawBaseInterface(analogStatesNew);
         break;
 
         case 3:
           drawPopup("You're late for your appointment! Hurry!" , 2.0);
-          delay(2000);
+          delay(d);
           drawBaseInterface(analogStatesNew);
         break;
 
         case 4:
           drawPopup("Todays food has been deliverd to your house." , -0.2);
-          delay(2000);
+          delay(d);
           drawBaseInterface(analogStatesNew);
         break;
       }
@@ -185,6 +186,9 @@ void drawBaseInterface(int valuesOfPorts[]) {
   tft.println("icons go in thIS bar");
   tft.setCursor(3,86);
   tft.setTextColor(GREEN);
+  if(divient < 0){
+    divient = 0;
+  }
   String b = "% divergent";
   String a = divient + b;
   tft.println(a);
@@ -201,10 +205,20 @@ void drawBaseInterface(int valuesOfPorts[]) {
 void drawPopup(String message, float divi){
   tft.drawRect(10,10,108,76,WHITE);
   tft.fillRect(11,11,106,74,BLACK);
-  tft.setCursor(23,23);
-  tft.setTextColor(WHITE);
-  tft.setTextSize(1);
-  tft.println(message);
+
+  int x = 13;
+  int y = 13;
+  //looping over the string so we can align the text in the popup box
+  for(int i = 0; i < message.length(); i++){
+    char a = message.charAt(i);
+    if(i%16 == 0 && i != 0){ //if we have written 16 characters on a new line skip to the next line.
+      x = 13;
+      y = y + 8;
+    }
+    tft.drawChar(x,y,a,WHITE,BLACK,1);
+    x = x + 6;
+  }
+    
   divient = divient + divi;
 }
 
