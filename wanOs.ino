@@ -35,9 +35,10 @@ bool changedChip = false;
 
 //timers variables
 long millisOld = 0;
+long millisOldEvent = 0;
 int timeOutPopup = 15000;
 int timeOutChipChange = 10000;
-int timeOutEvent = 40000;
+long timeOutEvent = 20000;
 
 //divergence meter
 float divient = 0;
@@ -90,9 +91,11 @@ void readoutAnalogPins(){
 
 void checkArrayStatus(){
   for(int i =0; i <5; i++){
+    /*
     Serial.print(analogStatesNew[i]);
     Serial.print(analogStatesOld[i]);
     Serial.print("|");
+    */
     if(analogStatesNew[i] != analogStatesOld[i]){
       analogStatesOld[i] = analogStatesNew[i];
       popupTrigger(analogStatesNew[i]);
@@ -100,25 +103,25 @@ void checkArrayStatus(){
     }
     else{
       analogStatesOld[i] = analogStatesNew[i];
-      if(millis()- timeOutChipChange > millisOld){
+      if(millisOld + timeOutChipChange < millis()){
         millisOld = millis();
         //in case of no changes and when timer expired release the changechip bool to allow for random events to happen. timeout should prob be around 30 sec;
         changedChip = false;
       }
     }
   }
-  Serial.println(",");
+  //Serial.println(",");
 }
 
 void popupTrigger(int value){
   switch(value){
     case 0:
-      drawBaseInterface(analogStatesNew[value]);
+      drawBaseInterface(analogStatesNew);
     break;
     case 1:
-      drawPopup("New key added!");
+      drawPopup("New key added!" , 0.3);
       delay(5000);
-      drawBaseInterface(analogStatesNew[value]);
+      drawBaseInterface(analogStatesNew);
     break;
     //repeat for amount of triggers
   }
@@ -129,11 +132,41 @@ void randomEventTrigger(){
     return;
   }
   else {
-    if(millis() - timeOutEvent > millisOld){
+    Serial.print("chip is not true, ");
+    Serial.println((millisOldEvent + timeOutEvent) - millis());
+    if((millisOldEvent + timeOutEvent) < millis()){
       //we popup with a random event here
-      millisOld = millis(); // update our counter with the last trigger event
+      Serial.println("timer triggered");
+      millisOldEvent = millis(); // update our counter with the last trigger event
+      timeOutEvent = random(20000,60000);
+      Serial.println(timeOutEvent);
+      int r = random(0,5);
+      switch(r){
+        case 1:
+          drawPopup("2 Friends have been removed from your contacts." , 0.0);
+          delay(2000);
+          drawBaseInterface(analogStatesNew);
+        break;
+
+        case 2:
+          drawPopup("You should head over to the canteen for your daily Latté" , 0.0);
+          delay(2000);
+          drawBaseInterface(analogStatesNew);
+        break;
+
+        case 3:
+          drawPopup("You're late for your appointment! Hurry!" , 2.0);
+          delay(2000);
+          drawBaseInterface(analogStatesNew);
+        break;
+
+        case 4:
+          drawPopup("Todays food has been deliverd to your house." , -0.2);
+          delay(2000);
+          drawBaseInterface(analogStatesNew);
+        break;
+      }
     }
-    // generate timer that triggers between 30 and 50 seconds or so
   }
 }
 
@@ -165,13 +198,14 @@ void drawBaseInterface(int valuesOfPorts[]) {
   }
 }
 
-void drawPopup(String message){
+void drawPopup(String message, float divi){
   tft.drawRect(10,10,108,76,WHITE);
   tft.fillRect(11,11,106,74,BLACK);
   tft.setCursor(23,23);
   tft.setTextColor(WHITE);
   tft.setTextSize(1);
   tft.println(message);
+  divient = divient + divi;
 }
 
 void drawIcon(int drawing[], int x, int y, uint16_t color){
