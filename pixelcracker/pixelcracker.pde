@@ -2,6 +2,9 @@ PImage img;
 PrintWriter output;
 int counter = 0;
 boolean startP = false;
+boolean reset = true;
+color black = color(0,0,0);
+color white = color(255,255,255);
 
 void setup(){
   size(550,550);
@@ -10,10 +13,14 @@ void setup(){
 }
 
 void draw() {
+  if(reset){
   background(39);
+  }
   
   if(img != null){ 
+    if(reset){
     image(img,0,0);
+    }
     if(startP){
     img.loadPixels();
     for (int y = 0; y < img.height; y++){
@@ -24,6 +31,7 @@ void draw() {
         float g = green(c);
         float b = blue(c);
         if(r < 10 && g < 10 && b < 10){
+          img.pixels[loc] = black;
           println(x + "," + y);
           if(counter != 0){
           output.print(",{"+x+","+y+"}");
@@ -33,9 +41,18 @@ void draw() {
           }
           counter++;
         }
+        else{
+          img.pixels[loc] = white;
+        }
+        
       }
+      img.updatePixels();
+      background(39);
+      image(img,0,0);
     }
+    
     startP = false;
+    reset = false;
     output.println("}");
     output.println("total number of pixels: " + counter);
     counter = 0;
@@ -67,7 +84,7 @@ void fileSelected(File selection) {
     img = loadImage(selection.getAbsolutePath());
     String[] filename = split(selection.getAbsolutePath(), '\\');
     String fname = filename[filename.length - 1];
-    //println(fname);
+    reset = true;
     output = createWriter(fname+".txt");
     output.print("{");
   }
