@@ -105,8 +105,14 @@ void checkArrayStatus(){
     */
     if(analogStatesNew[i] != analogStatesOld[i]){
       analogStatesOld[i] = analogStatesNew[i];
-      popupTrigger(analogStatesNew[i]);
+      if(analogStatesNew[i] == 0){
+        popupTrigger(0);
+      }
+      else{
+      int k = i +1;
+      popupTrigger(k);
       changedChip = true;
+      }
     }
     else{
       analogStatesOld[i] = analogStatesNew[i];
@@ -126,7 +132,27 @@ void popupTrigger(int value){
       drawBaseInterface(analogStatesNew);
     break;
     case 1:
-      drawPopup("New key added! Please enjoy your new privilage." , 0.3);
+      drawPopup("Your food preferences have been registered with the nearest supermarket." , -0.2);
+      delay(5000);
+      drawBaseInterface(analogStatesNew);
+    break;
+    case 2:
+    drawPopup("New Contacts added! You have 43 new friends!" , -0.5);
+      delay(5000);
+      drawBaseInterface(analogStatesNew);
+    break;
+    case 3:
+      drawPopup("You should be at work right now! Hurry!" , 5.3);
+      delay(5000);
+      drawBaseInterface(analogStatesNew);
+    break;
+    case 4:
+      drawPopup("The new Spice and Wolf season is airing right now! Go watch it!" , 1.5);
+      delay(5000);
+      drawBaseInterface(analogStatesNew);
+    break;
+    case 5:
+      drawPopup("Don't forget to go to the football viewing party tonight." , -0.5);
       delay(5000);
       drawBaseInterface(analogStatesNew);
     break;
@@ -183,15 +209,11 @@ void drawBaseInterface(int valuesOfPorts[]) {
   tft.fillScreen(BLACK);
   tft.fillRect(0,0,128,15,MEDIUM_CYAN);
   tft.drawRect(0,0,128,96,MEDIUM_CYAN);
-  //tft.setCursor(32,48);
-  //tft.setTextColor(DARK_CYAN);
-  //tft.setTextSize(2);
-  //tft.println("wanOs");
-  drawIcon(wanLogo, 756, 34,28,DARK_CYAN);
-  tft.setCursor(2,2);
+  tft.setCursor(30,42);
   tft.setTextColor(DARK_CYAN);
+  tft.setTextSize(2);
+  tft.println("wanOs");
   tft.setTextSize(1);
-  tft.println("icons go in thIS bar");
   tft.setCursor(3,86);
   tft.setTextColor(GREEN);
   if(divient < 0){
@@ -200,14 +222,21 @@ void drawBaseInterface(int valuesOfPorts[]) {
   String b = "% divergent";
   String a = divient + b;
   tft.println(a);
-  for(int i =0; i < 5; i++){
+
+  //drawIcon(wanLogo, 756, 34,28,DARK_CYAN);
+  drawIcon(keyIcon, 33, 2,2,DARK_CYAN);
+  drawIcon(heartIcon, 85, 15,2,DARK_CYAN);
+  drawIcon(gpsIcon, 46, 28,2,DARK_CYAN);
+  drawIcon(batteryIcon, 58, 41,2,DARK_CYAN);
+
+  /*for(int i =0; i < 5; i++){
     switch(analogStatesNew[i]){
       case 0:
         //drawIcon(logoArray, 0,0,RED);
       break;
       //more stuff for different states
     }
-  }
+  }*/
 }
 
 void drawPopup(String message, float divi){
